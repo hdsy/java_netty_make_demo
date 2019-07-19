@@ -1,3 +1,4 @@
+
    /*
     * Copyright 2012 The Netty Project
     *
@@ -13,37 +14,66 @@
    * License for the specific language governing permissions and limitations
    * under the License.
    */
-  //package io.netty.example.echo;
+ package exam.echo;
   
-  import io.netty.channel.ChannelHandler.Sharable;
+  import io.netty.buffer.ByteBuf;
+  import io.netty.buffer.Unpooled;
   import io.netty.channel.ChannelHandlerContext;
   import io.netty.channel.ChannelInboundHandlerAdapter;
-  import io.netty.buffer.ByteBuf;
-  import  io.netty.util.ReferenceCountUtil ;
+  import io.netty.util.ReferenceCountUtil ;
   
   /**
-   * Handler implementation for the echo server.
+   * Handler implementation for the echo client.  It initiates the ping-pong
+   * traffic between the echo client and server by sending the first message to
+   * the server.
    */
-  @Sharable
-  public class EchoServerHandler extends ChannelInboundHandlerAdapter {
+  public class EchoClientHandler extends ChannelInboundHandlerAdapter {
+  
+      private final ByteBuf firstMessage;
+  
+      /**
+       * Creates a client-side handler.
+       */
+      public EchoClientHandler(String inData) {
+          firstMessage = Unpooled.buffer(EchoClient.SIZE);
+          for (int i = 0; i < firstMessage.capacity()-1; i ++) {
+              firstMessage.writeByte((byte) inData.charAt((int)i%inData.length()));
+          }
+      }
+  
+      @Override
+      public void channelActive(ChannelHandlerContext ctx) {
+          ctx.writeAndFlush(firstMessage);
+      }
   
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) {
-          ctx.write(msg);
-		  ByteBuf in = (ByteBuf) msg;
-			try {
-				while (in.isReadable()) { // (1)
+			ctx.write(msg);
+
+
+			ByteBuf in = (ByteBuf) msg;
+			try 
+			{
+				System.out.print("\r\n**** recvd ****** {{\r\n");
+				while (in.isReadable()) 
+				{ // (1)
 					System.out.print((char) in.readByte());
 					System.out.flush();
 				}
-			} finally {
-				ReferenceCountUtil.release(msg); // (2)
+				System.out.print("\r\n**** recvd ****** }}\r\n");
+			} 
+			finally 
+			{
+				//ReferenceCountUtil.release(msg); // (2)
+				
 			}
+			
+			
       }
   
       @Override
       public void channelReadComplete(ChannelHandlerContext ctx) {
-          ctx.flush();
+         ctx.flush();
       }
   
       @Override
