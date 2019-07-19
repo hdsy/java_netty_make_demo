@@ -6,9 +6,15 @@ for easy to begginner, MAKEFILE was used to construct the project.
 
 ## Echo
 make 
+
 make run_s_echo
+
 make run_c_echo
+
 ## Discard
 make 
+
 make run_s_discard
+
 make run_c_discard
+
